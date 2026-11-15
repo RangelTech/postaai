@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{NOME}}: painel</title>
+<link rel="stylesheet" href="/s/estilo.css">
+<link rel="stylesheet" href="/s/painel.css">
+<style>:root{--marca:{{COR}}}</style>
+</head>
+<body>
+<header class="topo"><div class="wrap">
+  <a class="logo" href="/painel"><i>AI</i>{{NOME}}</a>
+  <nav class="abas" role="tablist">
+    <button role="tab" data-aba="agenda" aria-selected="true">Agenda</button>
+    <button role="tab" data-aba="contas">Conta conectada</button>
+    <button role="tab" data-aba="plano">Plano</button>
+  </nav>
+  <div style="display:flex;gap:8px"><button class="btn btn-ghost sm" data-senha>Minha senha</button><button class="btn btn-ghost sm" id="sair">Sair</button></div>
+</div></header>
+<main class="wrap painel">
+  <div class="aviso" id="aviso" hidden></div>
+  <section data-painel="agenda">
+    <div class="cab-cartao"><h2 style="font-size:24px">Seus posts</h2><button class="btn btn-pri" id="novo">Novo post</button></div>
+    <div id="lista-posts"><p class="vazio">Carregando…</p></div>
+  </section>
+  <section data-painel="contas" hidden>
+    <div class="cartao">
+      <div class="cab-cartao"><h3>Contas do {{REDE}}</h3><button class="btn btn-pri sm" id="nova-conta">Conectar conta</button></div>
+      <div id="lista-contas"><p class="vazio">Carregando…</p></div>
+    </div>
+  </section>
+  <section data-painel="plano" hidden>
+    <div class="cartao" id="meu-plano"></div>
+    <div class="planos" id="lista-planos" style="margin-top:16px"></div>
+  </section>
+</main>
+<div class="modal" id="m-post" hidden role="dialog" aria-modal="true" aria-labelledby="mp-tit"><div class="caixa larga"><button class="x" data-fechar aria-label="Fechar">×</button><div id="mp-corpo"></div></div></div>
+<div class="modal" id="m-conta" hidden role="dialog" aria-modal="true" aria-labelledby="mc-tit"><div class="caixa"><button class="x" data-fechar aria-label="Fechar">×</button><div id="mc-corpo"></div></div></div>
+<script>window.MARCA = {{MARCA_JSON}}</script>
+<script src="/s/login.js"></script>
+<script src="/s/painel.js"></script>
+</body>
+</html>

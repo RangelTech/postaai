@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{NOME}}: agende seus posts no {{REDE}}</title>
+<meta name="description" content="{{NOME}} publica no seu {{REDE}} na hora marcada. Suba a foto ou o vídeo, peça a legenda para a IA e escolha o horário.">
+<link rel="stylesheet" href="/s/estilo.css">
+<style>:root{--marca:{{COR}}}.cal{display:grid;gap:8px}.cal .dia{display:flex;gap:12px;align-items:center;background:var(--card2);border:1px solid var(--bd);border-radius:14px;padding:12px}.cal .mini{width:52px;height:52px;border-radius:10px;background:color-mix(in srgb,var(--ac) 25%,var(--card));flex:none}.cal b{display:block}.cal small{color:var(--mut)}.ok{color:var(--ok);font-size:13px;margin-left:auto}</style>
+</head>
+<body>
+<header class="topo"><div class="wrap">
+  <a class="logo" href="/"><i>AI</i>{{NOME}}</a>
+  <nav style="display:flex;gap:8px"><a class="btn btn-ghost sm" href="#planos">Planos</a><button class="btn btn-pri sm" data-entrar>Entrar</button></nav>
+</div></header>
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <span class="selo">Agendamento no {{REDE}}</span>
+      <h1>Post no ar <span>na hora certa</span>, mesmo quando você está ocupado.</h1>
+      <p class="lead">Suba a foto ou o vídeo, peça a legenda para a IA e escolha o dia. O {{NOME}} publica na sua conta, tenta de novo se a rede falhar e te mostra o link do post.</p>
+      <div class="ctas"><a class="btn btn-pri grande" href="#planos">Começar agora</a><button class="btn btn-sec grande" data-entrar>Já sou cliente</button></div>
+    </div>
+    <div class="fone" aria-hidden="true">
+      <div class="cab"><span class="av">7</span><div><b>Sua semana</b><small>5 posts agendados</small></div></div>
+      <div class="cal">
+        <div class="dia"><span class="mini"></span><div><b>Segunda, 09:00</b><small>Bastidores da produção</small></div><span class="ok">publicado</span></div>
+        <div class="dia"><span class="mini"></span><div><b>Quarta, 12:30</b><small>Promoção da semana</small></div><span class="ok">publicado</span></div>
+        <div class="dia"><span class="mini"></span><div><b>Sexta, 18:00</b><small>Depoimento de cliente</small></div><small style="margin-left:auto">agendado</small></div>
+        <div class="dia"><span class="mini"></span><div><b>Sábado, 10:00</b><small>Dica rápida</small></div><small style="margin-left:auto">agendado</small></div>
+      </div>
+    </div>
+  </section>
+  <section class="bloco">
+    <h2>Como funciona</h2>
+    <p class="sub">Sem instalar nada e sem passar a senha para ninguém.</p>
+    <div class="grade passos">
+      <div class="cartao"><h3>Conecte sua conta</h3><p id="txt-conecta">Pelo nosso formulário. A senha vai direto para a rede e não fica guardada.</p></div>
+      <div class="cartao"><h3>Monte o post</h3><p>Foto, vídeo ou carrossel. Não sabe o que escrever? A IA faz a legenda a partir de uma frase.</p></div>
+      <div class="cartao"><h3>Escolha o horário</h3><p>Publicamos na hora marcada. Se a rede falhar, tentamos de novo e avisamos você.</p></div>
+    </div>
+  </section>
+  <section class="bloco">
+    <h2>Feito para quem posta de verdade</h2>
+    <div class="grade">
+      <div class="cartao"><div class="ic">↻</div><h3>Reenvio automático</h3><p>Três novas tentativas com intervalo, e aviso por e-mail se mesmo assim não der.</p></div>
+      <div class="cartao"><div class="ic">✎</div><h3>Legenda com IA</h3><p>Gancho na primeira linha, chamada para ação e hashtags no tom que você escolher.</p></div>
+      <div class="cartao"><div class="ic">⇄</div><h3>Recebe dos outros produtos</h3><p>Posts do Perfilaí, Cortaí e Anima AI chegam como rascunho, prontos para agendar.</p></div>
+      <div class="cartao"><div class="ic">↗</div><h3>Comprovante</h3><p>Cada post publicado mostra o link direto na rede.</p></div>
+    </div>
+  </section>
+  <section class="bloco" id="planos">
+    <h2>Planos</h2>
+    <p class="sub">Preço de lançamento. Cancele quando quiser.</p>
+    <div class="planos" id="lista-planos"></div>
+  </section>
+  <section class="bloco">
+    <h2>Perguntas</h2>
+    <details><summary>Vocês guardam minha senha?</summary><p>Não. Ela é usada só para entrar e é descartada. Guardamos a sessão da conta, cifrada, para publicar nos horários marcados.</p></details>
+    <details><summary>É a API oficial?</summary><p>Não. Publicamos como você publicaria pelo navegador, a partir de um endereço em São Paulo. A rede pode pedir para você entrar de novo de vez em quando; avisamos na hora. Leia os <a href="/termos">termos</a>.</p></details>
+    <details><summary>E se a rede pedir código?</summary><p>A tela mostra o que a rede pediu (código do SMS, do app ou aprovação no celular) e você responde ali mesmo.</p></details>
+  </section>
+</main>
+<footer class="rodape"><div class="wrap"><span>{{NOME}}, um produto Rangel Tech · <a href="/termos">Termos</a></span><div class="outras" id="outras"></div></div></footer>
+<div class="modal" id="m-entrar" hidden role="dialog" aria-modal="true" aria-labelledby="m-tit"><div class="caixa"><button class="x" data-fechar aria-label="Fechar">×</button></div></div>
+<script>window.MARCA = {{MARCA_JSON}}</script>
+<script src="/s/login.js" data-conta="/api/conta" data-destino="/painel"></script>
+<script>
+;(async () => {
+  const $ = (q) => document.querySelector(q)
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
+  if (window.MARCA.login === 'qr') $('#txt-conecta').textContent = 'Leia um QR com o app do TikTok. Sem senha.'
+  const j = await (await fetch('/api/marca')).json()
+  $('#lista-planos').innerHTML = j.planos.map((p, i) => `<div class="plano ${i === 1 ? 'destaque' : ''}"><h3>${esc(p.nome)}</h3>
+    <div class="preco">R$ ${p.preco.toFixed(2).replace('.', ',')}<small>/mês</small></div><ul>${p.itens.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    ${p.checkout ? `<a class="btn ${i === 1 ? 'btn-pri' : 'btn-sec'}" href="${esc(p.checkout)}">Assinar ${esc(p.nome)}</a>` : '<button class="btn btn-sec" disabled>Em breve</button>'}</div>`).join('')
+  $('#outras').innerHTML = j.outras.map((o) => `<a href="${esc(o.url)}">${esc(o.nome)}</a>`).join('')
+})()
+</script>
+</body>
+</html>
