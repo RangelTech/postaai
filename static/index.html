@@ -32,6 +32,22 @@
 .ecossis a:hover{border-color:var(--ac);transform:translateY(-4px)}
 .ecossis b{display:block;font-size:18px;margin-bottom:4px}.ecossis span{color:var(--mut);font-size:14px}
 @media (max-width:860px){.dias{grid-template-columns:repeat(4,1fr)}.dia:nth-child(n+5){display:none}}
+
+/* cinema (16/11): foto atrás do topo e faixas de foto em tela cheia */
+html,body{overflow-x:clip}
+.cine{position:relative;isolation:isolate}
+.cine-fundo{position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);z-index:-1;background-size:cover;background-position:center;opacity:.68;animation:cineZoom 18s ease-out both}
+.cine-fundo:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.6) 42%,rgba(0,0,0,.12) 100%),linear-gradient(0deg,var(--bg,#050505) 0%,transparent 35%)}
+@keyframes cineZoom{from{transform:translateX(-50%) scale(1.08)}to{transform:translateX(-50%) scale(1)}}
+.cine-faixa{position:relative;min-height:78vh;display:grid;align-items:center;overflow:hidden;isolation:isolate}
+.cine-faixa>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transform:scale(1.04);transition:transform 6s ease}
+.cine-faixa:hover>img{transform:scale(1)}
+.cine-faixa:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.55) 55%,rgba(0,0,0,.15))}
+.cine-faixa .cine-txt{max-width:640px;padding:96px 0}
+.cine-faixa .cine-etq{display:inline-block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--ac,#fff);margin-bottom:14px}
+.cine-faixa h2{font-size:clamp(40px,5.6vw,76px);line-height:1;letter-spacing:-.02em;margin-bottom:18px;color:#fff}
+.cine-faixa p{font-size:19px;color:#e2e2e8;margin-bottom:28px;max-width:560px}
+@media (max-width:760px){.cine-fundo{opacity:.45}.cine-faixa{min-height:70vh}.cine-faixa:after{background:linear-gradient(0deg,rgba(0,0,0,.92) 35%,rgba(0,0,0,.45))}}
 </style>
 </head>
 <body>
@@ -41,7 +57,7 @@
 </div></header>
 
 <main>
-<section class="heroi">
+<section class="heroi cine"><div class="cine-fundo" style="background-image:url(/s/img/heroi.webp)"></div>
   <div class="aurora" aria-hidden="true"></div><div class="grade-fina" aria-hidden="true"></div>
   <div class="wrap heroi-split">
     <div>
@@ -86,6 +102,10 @@
     <div class="passo rev"><h3>Escolha o horário</h3><p>Publicamos na hora marcada. Se a rede falhar, tentamos de novo e avisamos você.</p></div>
   </div>
 </div></section>
+
+<section class="cine-faixa"><img src="/s/img/agenda.webp" alt="" loading="lazy"><div class="wrap"><div class="cine-txt rev">
+  <span class="cine-etq">Agenda no automático</span><h2>A semana inteira postada<br>antes do café.</h2><p>Sobe as fotos, a IA escreve as legendas e o Posta AI publica na hora certa. Você só aparece para responder os comentários.</p><button class="btn btn-pri" data-entrar="codigo">Agendar minha semana</button>
+</div></div></section>
 
 <section class="bloco" id="legenda" style="background:var(--bg2)"><div class="wrap heroi-split" style="align-items:start">
   <div>
