@@ -15,6 +15,7 @@ import uuid
 from pathlib import Path
 
 import httpx
+from starlette.concurrency import run_in_threadpool
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -329,9 +330,9 @@ def criar_app(cfg: Config | None = None, pn: PN | None = None, llm=None) -> Fast
             leg = base
             if not leg and tema:
                 try:
-                    leg = chamar_llm([{"role": "user", "content": f"Legenda para o {MARCAS[m]['rede']} (post {i + 1} de {len(arquivos)} de uma série). "
+                    leg = (await run_in_threadpool(chamar_llm, [{"role": "user", "content": f"Legenda para o {MARCAS[m]['rede']} (post {i + 1} de {len(arquivos)} de uma série). "
                                                                    f"Tema: {tema}. Gancho na primeira linha, chamada para ação e de 3 a 6 hashtags. "
-                                                                   "Responda só com a legenda."}]).strip().strip('"')[:MARCAS[m]["limite_legenda"]]
+                                                                   "Responda só com a legenda."}])).strip().strip('"')[:MARCAS[m]["limite_legenda"]]
                 except Exception:  # noqa: BLE001
                     leg = ""
             try:
@@ -536,7 +537,7 @@ def criar_app(cfg: Config | None = None, pn: PN | None = None, llm=None) -> Fast
                   f"{'Tom profissional, sem gírias, com uma lição ou dado concreto; no máximo 3 hashtags.' if m == 'linkdn' else 'Gancho forte na primeira linha, chamada para ação no fim e de 3 a 8 hashtags.'}\n"
                   f"Máximo {min(mk['limite_legenda'], 1500)} caracteres. Responda só com a legenda, sem aspas.")
         try:
-            t = chamar_llm([{"role": "user", "content": prompt}]).strip().strip('"')
+            t = (await run_in_threadpool(chamar_llm, [{"role": "user", "content": prompt}])).strip().strip('"')
         except Exception:  # noqa: BLE001
             raise HTTPException(502, "a IA não respondeu agora; tente de novo")
         return {"legenda": t[: mk["limite_legenda"]]}
