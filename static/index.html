@@ -5,77 +5,173 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{NOME}}: agende seus posts no {{REDE}}</title>
 <meta name="description" content="{{NOME}} publica no seu {{REDE}} na hora marcada. Suba a foto ou o vídeo, peça a legenda para a IA e escolha o horário.">
+<meta property="og:title" content="{{NOME}}: post no ar na hora certa">
+<meta property="og:description" content="Agende a semana inteira no {{REDE}} em 10 minutos. Legenda com IA e reenvio automático.">
 <link rel="stylesheet" href="/s/estilo.css">
-<style>:root{--marca:{{COR}}}.cal{display:grid;gap:8px}.cal .dia{display:flex;gap:12px;align-items:center;background:var(--card2);border:1px solid var(--bd);border-radius:14px;padding:12px}.cal .mini{width:52px;height:52px;border-radius:10px;background:color-mix(in srgb,var(--ac) 25%,var(--card));flex:none}.cal b{display:block}.cal small{color:var(--mut)}.ok{color:var(--ok);font-size:13px;margin-left:auto}</style>
+<link rel="stylesheet" href="/s/cinema.css">
+<style>:root{--marca:{{COR}}}
+.agenda{background:var(--card);border:1px solid var(--bd);border-radius:28px;padding:22px;box-shadow:0 50px 140px -40px color-mix(in srgb,var(--ac) 50%,transparent)}
+.agenda .cab-ag{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.agenda .cab-ag b{font-size:17px}.agenda .cab-ag span{color:var(--mut);font-size:13px}
+.dias{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.dia{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;min-height:150px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.dia small{color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.post{border-radius:10px;padding:7px;font-size:11px;line-height:1.3;background:color-mix(in srgb,var(--ac) 16%,var(--card));border:1px solid color-mix(in srgb,var(--ac) 35%,transparent);opacity:0;transform:scale(.9)}
+.post i{display:block;height:34px;border-radius:6px;margin-bottom:5px;background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 70%,#fff 10%),#1b1f26)}
+.post.ok{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4)}
+.post.on{animation:surge .4s cubic-bezier(.2,.7,.2,1) forwards}
+.status{margin-top:16px;display:flex;gap:10px;align-items:center;font-size:14px;color:var(--mut)}
+.status b{width:9px;height:9px;border-radius:50%;background:#34d399;box-shadow:0 0 10px #34d399}
+.legenda-ia{background:var(--card);border:1px solid var(--bd);border-radius:24px;padding:26px}
+.legenda-ia .pedido{color:var(--mut);font-size:15px;border-left:3px solid var(--ac);padding-left:12px;margin-bottom:18px}
+.legenda-ia .saida{font-size:16px;line-height:1.6;white-space:pre-line;min-height:220px}
+.legenda-ia .saida::after{content:"▍";color:var(--ac);animation:pisca 1s steps(1) infinite}
+@keyframes pisca{50%{opacity:0}}
+.ecossis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.ecossis a{display:block;text-decoration:none;background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px;transition:border-color .3s,transform .3s}
+.ecossis a:hover{border-color:var(--ac);transform:translateY(-4px)}
+.ecossis b{display:block;font-size:18px;margin-bottom:4px}.ecossis span{color:var(--mut);font-size:14px}
+@media (max-width:860px){.dias{grid-template-columns:repeat(4,1fr)}.dia:nth-child(n+5){display:none}}
+</style>
 </head>
 <body>
 <header class="topo"><div class="wrap">
   <a class="logo" href="/"><i>AI</i>{{NOME}}</a>
-  <nav style="display:flex;gap:8px"><a class="btn btn-ghost sm" href="#planos">Planos</a><button class="btn btn-pri sm" data-entrar>Entrar</button></nav>
+  <nav><a class="lnk" href="#como">Como funciona</a><a class="lnk" href="#legenda">Legenda com IA</a><a class="lnk" href="#planos">Planos</a><a class="lnk" href="#duvidas">Dúvidas</a><button class="btn btn-sec" data-entrar>Entrar</button></nav>
 </div></header>
-<main class="wrap">
-  <section class="hero">
+
+<main>
+<section class="heroi">
+  <div class="aurora" aria-hidden="true"></div><div class="grade-fina" aria-hidden="true"></div>
+  <div class="wrap heroi-split">
     <div>
-      <span class="selo">Agendamento no {{REDE}}</span>
-      <h1>Post no ar <span>na hora certa</span>, mesmo quando você está ocupado.</h1>
-      <p class="lead">Suba a foto ou o vídeo, peça a legenda para a IA e escolha o dia. O {{NOME}} publica na sua conta, tenta de novo se a rede falhar e te mostra o link do post.</p>
-      <div class="ctas"><a class="btn btn-pri grande" href="#planos">Começar agora</a><button class="btn btn-sec grande" data-entrar>Já sou cliente</button></div>
-    </div>
-    <div class="fone" aria-hidden="true">
-      <div class="cab"><span class="av">7</span><div><b>Sua semana</b><small>5 posts agendados</small></div></div>
-      <div class="cal">
-        <div class="dia"><span class="mini"></span><div><b>Segunda, 09:00</b><small>Bastidores da produção</small></div><span class="ok">publicado</span></div>
-        <div class="dia"><span class="mini"></span><div><b>Quarta, 12:30</b><small>Promoção da semana</small></div><span class="ok">publicado</span></div>
-        <div class="dia"><span class="mini"></span><div><b>Sexta, 18:00</b><small>Depoimento de cliente</small></div><small style="margin-left:auto">agendado</small></div>
-        <div class="dia"><span class="mini"></span><div><b>Sábado, 10:00</b><small>Dica rápida</small></div><small style="margin-left:auto">agendado</small></div>
+      <span class="selo"><b></b>Agendamento no {{REDE}}</span>
+      <h1>A semana inteira <em>postada</em> em 10 minutos.</h1>
+      <p class="lead">Suba a foto ou o vídeo, peça a legenda para a IA e escolha o dia. O {{NOME}} publica na sua conta na hora marcada, tenta de novo se a rede falhar e te mostra o link do post.</p>
+      <div class="ctas"><a class="btn btn-pri btn-lg pulsa" href="#planos">Agendar minha semana</a><a class="btn btn-sec btn-lg" href="#como">Como funciona</a></div>
+      <div class="numeros">
+        <div><b>3x</b><span>novas tentativas se a rede falhar</span></div>
+        <div><b>1 frase</b><span>vira legenda com gancho e hashtags</span></div>
+        <div><b>São Paulo</b><span>publicamos de um endereço brasileiro</span></div>
       </div>
     </div>
-  </section>
-  <section class="bloco">
-    <h2>Como funciona</h2>
-    <p class="sub">Sem instalar nada e sem passar a senha para ninguém.</p>
-    <div class="grade passos">
-      <div class="cartao"><h3>Conecte sua conta</h3><p id="txt-conecta">Pelo nosso formulário. A senha vai direto para a rede e não fica guardada.</p></div>
-      <div class="cartao"><h3>Monte o post</h3><p>Foto, vídeo ou carrossel. Não sabe o que escrever? A IA faz a legenda a partir de uma frase.</p></div>
-      <div class="cartao"><h3>Escolha o horário</h3><p>Publicamos na hora marcada. Se a rede falhar, tentamos de novo e avisamos você.</p></div>
+    <div class="agenda" aria-hidden="true" id="agenda">
+      <div class="cab-ag"><b>Sua semana</b><span>{{REDE}}</span></div>
+      <div class="dias">
+        <div class="dia"><small>seg</small><div class="post"><i></i>Bastidores 19h</div></div>
+        <div class="dia"><small>ter</small><div class="post"><i></i>Dica rápida 12h</div><div class="post"><i></i>Reels 20h</div></div>
+        <div class="dia"><small>qua</small><div class="post"><i></i>Carrossel 18h</div></div>
+        <div class="dia"><small>qui</small><div class="post"><i></i>Depoimento 19h</div></div>
+        <div class="dia"><small>sex</small><div class="post"><i></i>Oferta 11h</div><div class="post"><i></i>Corte live 21h</div></div>
+        <div class="dia"><small>sáb</small><div class="post"><i></i>Bastidor 10h</div></div>
+        <div class="dia"><small>dom</small><div class="post"><i></i>Animação 18h</div></div>
+      </div>
+      <div class="status"><b></b><span id="st">Tudo agendado. Publicamos na hora certa.</span></div>
     </div>
-  </section>
-  <section class="bloco">
-    <h2>Feito para quem posta de verdade</h2>
-    <div class="grade">
-      <div class="cartao"><div class="ic">↻</div><h3>Reenvio automático</h3><p>Três novas tentativas com intervalo, e aviso por e-mail se mesmo assim não der.</p></div>
-      <div class="cartao"><div class="ic">✎</div><h3>Legenda com IA</h3><p>Gancho na primeira linha, chamada para ação e hashtags no tom que você escolher.</p></div>
-      <div class="cartao"><div class="ic">⇄</div><h3>Recebe dos outros produtos</h3><p>Posts do Perfilaí, Cortaí e Anima AI chegam como rascunho, prontos para agendar.</p></div>
-      <div class="cartao"><div class="ic">↗</div><h3>Comprovante</h3><p>Cada post publicado mostra o link direto na rede.</p></div>
-    </div>
-  </section>
-  <section class="bloco" id="planos">
-    <h2>Planos</h2>
-    <p class="sub">Preço de lançamento. Cancele quando quiser.</p>
-    <div class="planos" id="lista-planos"></div>
-  </section>
-  <section class="bloco">
-    <h2>Perguntas</h2>
-    <details><summary>Vocês guardam minha senha?</summary><p>Não. Ela é usada só para entrar e é descartada. Guardamos a sessão da conta, cifrada, para publicar nos horários marcados.</p></details>
-    <details><summary>É a API oficial?</summary><p>Não. Publicamos como você publicaria pelo navegador, a partir de um endereço em São Paulo. A rede pode pedir para você entrar de novo de vez em quando; avisamos na hora. Leia os <a href="/termos">termos</a>.</p></details>
-    <details><summary>E se a rede pedir código?</summary><p>A tela mostra o que a rede pediu (código do SMS, do app ou aprovação no celular) e você responde ali mesmo.</p></details>
-  </section>
+  </div>
+</section>
+
+<div class="faixa" aria-hidden="true"><div>
+  <span>Foto</span><span>Reels</span><span>Carrossel</span><span>Vídeo</span><span>Texto</span><span>Legenda com IA</span><span>Reenvio automático</span><span>Link do post</span>
+  <span>Foto</span><span>Reels</span><span>Carrossel</span><span>Vídeo</span><span>Texto</span><span>Legenda com IA</span><span>Reenvio automático</span><span>Link do post</span>
+</div></div>
+
+<section class="bloco" id="como"><div class="wrap">
+  <div class="olho">Como funciona</div>
+  <h2 class="rev">Três passos. Depois você esquece.</h2>
+  <p class="sub rev">Sem aplicativo, sem planilha, sem alarme no celular.</p>
+  <div class="passos">
+    <div class="passo rev"><h3>Conecte sua conta</h3><p id="txt-conecta">Pelo nosso formulário. A senha vai direto para a rede e não fica guardada.</p></div>
+    <div class="passo rev"><h3>Monte o post</h3><p id="txt-tipos">Foto, vídeo ou carrossel. Não sabe o que escrever? A IA faz a legenda a partir de uma frase.</p></div>
+    <div class="passo rev"><h3>Escolha o horário</h3><p>Publicamos na hora marcada. Se a rede falhar, tentamos de novo e avisamos você.</p></div>
+  </div>
+</div></section>
+
+<section class="bloco" id="legenda" style="background:var(--bg2)"><div class="wrap heroi-split" style="align-items:start">
+  <div>
+    <div class="olho">Legenda com IA</div>
+    <h2 class="rev">Você manda uma frase. Ela devolve o post pronto.</h2>
+    <p class="sub rev">Gancho na primeira linha, texto no tom do seu negócio, chamada para ação e hashtags que fazem sentido. Você edita o que quiser antes de agendar.</p>
+  </div>
+  <div class="legenda-ia rev">
+    <div class="pedido">"pizza de forno a lenha, promoção de sexta, tom animado"</div>
+    <div class="saida" id="saida"></div>
+  </div>
+</div></section>
+
+<section class="bloco"><div class="wrap">
+  <div class="olho">Feito para quem posta de verdade</div>
+  <h2 class="rev">Seguro, insistente e com comprovante.</h2>
+  <div class="grade" style="margin-top:40px">
+    <div class="beneficio rev"><div class="ic">↻</div><h3>Reenvio automático</h3><p>Três novas tentativas com intervalo, e aviso por e-mail se mesmo assim não der.</p></div>
+    <div class="beneficio rev"><div class="ic">✎</div><h3>Legenda com IA</h3><p>Gancho, chamada para ação e hashtags no tom que você escolher.</p></div>
+    <div class="beneficio rev"><div class="ic">⌂</div><h3>Endereço no Brasil</h3><p>Todo post sai de São Paulo, como se fosse você no seu computador.</p></div>
+    <div class="beneficio rev"><div class="ic">↗</div><h3>Comprovante</h3><p>Cada post publicado mostra o link direto na rede.</p></div>
+  </div>
+</div></section>
+
+<section class="bloco" style="background:var(--bg2)"><div class="wrap">
+  <div class="olho">Junto com a família Rangel Tech</div>
+  <h2 class="rev">O conteúdo nasce num produto e é postado aqui.</h2>
+  <p class="sub rev">Cortes, animações e textos de perfil chegam como rascunho no {{NOME}}, prontos para agendar.</p>
+  <div class="ecossis">
+    <a class="rev" href="https://cortai.rangeltech.net"><b>Cortaí</b><span>Corta lives e vídeos longos em clipes que viralizam.</span></a>
+    <a class="rev" href="https://anima-ai.rangeltech.net"><b>Anima AI</b><span>Uma frase vira animação com narração e legenda.</span></a>
+    <a class="rev" href="https://perfilai.rangeltech.net"><b>Perfilaí</b><span>Bio, destaques e posts do perfil escritos pela IA.</span></a>
+    <a class="rev" href="https://atende-ai.rangeltech.net"><b>Atende AI</b><span>Responde quem chega por causa dos seus posts.</span></a>
+  </div>
+</div></section>
+
+<section class="bloco" id="planos"><div class="wrap">
+  <div class="olho">Planos</div>
+  <h2 class="rev">Menos que um café por dia.</h2>
+  <p class="sub rev">Preço de lançamento. Cancele quando quiser, pela própria Cakto.</p>
+  <div class="planos" data-planos="/api/marca" data-destaque="1"></div>
+</div></section>
+
+<section class="bloco" id="duvidas" style="background:var(--bg2)"><div class="wrap" style="max-width:860px">
+  <div class="olho">Dúvidas</div>
+  <h2 style="margin-bottom:24px">Perguntas frequentes</h2>
+  <details><summary>Vocês guardam minha senha?</summary><p>Não. Ela é usada só para entrar e é descartada. Guardamos a sessão da conta, cifrada, para publicar nos horários marcados.</p></details>
+  <details><summary>É a API oficial?</summary><p>Não. Publicamos como você publicaria pelo navegador, a partir de um endereço em São Paulo. A rede pode pedir para você entrar de novo de vez em quando; avisamos na hora. Leia os <a href="/termos">termos</a>.</p></details>
+  <details><summary>E se a rede pedir código?</summary><p>A tela mostra o que a rede pediu (código do SMS, do app ou aprovação no celular) e você responde ali mesmo.</p></details>
+  <details><summary>Posso postar em mais de uma rede?</summary><p>Cada rede é um produto: Posta AI Insta, Face, TikTok e Linkdn. Os links estão no rodapé.</p></details>
+</div></section>
+
+<section class="fechamento"><div class="wrap">
+  <h2 class="rev">Quem posta todo dia cresce. Deixe isso no automático.</h2>
+  <p class="rev">Agende hoje a semana que vem.</p>
+  <a class="btn btn-pri btn-lg pulsa" href="#planos">Começar agora</a>
+</div></section>
 </main>
+
 <footer class="rodape"><div class="wrap"><span>{{NOME}}, um produto Rangel Tech · <a href="/termos">Termos</a></span><div class="outras" id="outras"></div></div></footer>
+<div class="fixo-cel"><a class="btn btn-pri" href="#planos">Ver planos</a></div>
 <div class="modal" id="m-entrar" hidden role="dialog" aria-modal="true" aria-labelledby="m-tit"><div class="caixa"><button class="x" data-fechar aria-label="Fechar">×</button></div></div>
-<script>window.MARCA = {{MARCA_JSON}}</script>
-<script src="/s/login.js" data-conta="/api/conta" data-destino="/painel"></script>
-<script>
-;(async () => {
+<script>window.MARCA = {{MARCA_JSON}}
+;(() => {
   const $ = (q) => document.querySelector(q)
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
   if (window.MARCA.login === 'qr') $('#txt-conecta').textContent = 'Leia um QR com o app do TikTok. Sem senha.'
-  const j = await (await fetch('/api/marca')).json()
-  $('#lista-planos').innerHTML = j.planos.map((p, i) => `<div class="plano ${i === 1 ? 'destaque' : ''}"><h3>${esc(p.nome)}</h3>
-    <div class="preco">R$ ${p.preco.toFixed(2).replace('.', ',')}<small>/mês</small></div><ul>${p.itens.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
-    ${p.checkout ? `<a class="btn ${i === 1 ? 'btn-pri' : 'btn-sec'}" href="${esc(p.checkout)}">Assinar ${esc(p.nome)}</a>` : '<button class="btn btn-sec" disabled>Em breve</button>'}</div>`).join('')
-  $('#outras').innerHTML = j.outras.map((o) => `<a href="${esc(o.url)}">${esc(o.nome)}</a>`).join('')
-})()
-</script>
+  $('#txt-tipos').textContent = window.MARCA.dica + ' Não sabe o que escrever? A IA faz a legenda a partir de uma frase.'
+  // agenda que se preenche e vira "publicado"
+  const posts = [...document.querySelectorAll('#agenda .post')]
+  const ciclo = () => {
+    posts.forEach((p) => p.classList.remove('on', 'ok'))
+    $('#st').textContent = 'Montando a semana…'
+    posts.forEach((p, i) => setTimeout(() => p.classList.add('on'), 400 + i * 350))
+    setTimeout(() => { $('#st').textContent = 'Tudo agendado. Publicamos na hora certa.' }, 400 + posts.length * 350)
+    posts.slice(0, 3).forEach((p, i) => setTimeout(() => p.classList.add('ok'), 5200 + i * 900))
+    setTimeout(() => { $('#st').textContent = '3 posts publicados · link de cada um no painel' }, 8000)
+    setTimeout(ciclo, 13000)
+  }
+  ciclo()
+  // legenda sendo escrita
+  const txt = 'Sexta é dia de pizza que estala 🔥\n\nMassa de fermentação lenta, forno a lenha a 400 °C e borda que faz barulho na primeira mordida.\n\nHoje a grande sai por R$ 49 até as 23h. Chama no direct ou peça pelo link da bio.\n\n#pizzaria #fornoalenha #sextou #pizzagoiania'
+  const out = $('#saida'); let n = 0
+  const io = new IntersectionObserver((es) => { if (es[0].isIntersecting) { io.disconnect(); const t = setInterval(() => { out.textContent = txt.slice(0, ++n); if (n >= txt.length) clearInterval(t) }, 22) } })
+  io.observe(out)
+})()</script>
+<script src="/s/login.js" data-conta="/api/conta" data-destino="/painel"></script>
+<script src="/s/cinema.js"></script>
 </body>
 </html>
