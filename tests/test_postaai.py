@@ -165,3 +165,40 @@ def test_quando_com_z(amb):
     m = subir(c)
     q = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(time.time() + 3600))
     assert c.post("/api/posts", json={"conta": cid, "tipo": "foto", "arquivos": [m["nome"]], "quando": q}).status_code == 200
+
+
+def test_biblioteca_lote_e_planilha(amb):
+    import io as _io
+    from openpyxl import Workbook, load_workbook
+    c, f, app = amb
+    comprar(c)
+    k, _ = conectar(c)
+    a = subir(c, "pizza.jpg")
+    b = subir(c, "massa.jpg")
+    v = subir(c, "bastidores.mp4", b"\x00\x00\x00\x18ftypmp42")
+    bib = c.get("/api/biblioteca").json()["itens"]
+    assert {i["original"] for i in bib} == {"pizza.jpg", "massa.jpg", "bastidores.mp4"} and not any(i["usado"] for i in bib)
+    # lote: 2 arquivos, um por dia, legenda da IA a partir do tema
+    r = c.post("/api/posts/lote", json={"conta": k, "arquivos": [a["nome"], b["nome"]], "inicio": em(3600), "tema": "pizza de forno a lenha"}).json()
+    assert r["criados"] == 2 and r["erros"] == []
+    q = sorted(p["quando"] for p in r["posts"])
+    assert round((q[1] - q[0]) / 3600) == 24 and all(p["legenda"] == "Legenda pronta #promo" for p in r["posts"])
+    assert c.delete(f"/api/biblioteca/{a['nome']}").status_code == 409  # está num post agendado
+    # modelo da planilha baixa e abre
+    m = c.get("/api/posts/planilha-modelo")
+    assert m.status_code == 200 and load_workbook(_io.BytesIO(m.content)).active["A1"].value == "data"
+    # planilha: uma linha boa (vídeo pelo nome original) e uma com arquivo que não existe
+    wb = Workbook()
+    ws = wb.active
+    ws.append(["data", "hora", "tipo", "arquivo", "legenda"])
+    ws.append(["31/12/2030", "19:30", "video", "bastidores.mp4", "Bastidores da massa"])
+    ws.append(["31/12/2030", "20:00", "foto", "nao-existe.jpg", "x"])
+    buf = _io.BytesIO()
+    wb.save(buf)
+    r = c.post(f"/api/posts/planilha?conta={k}", content=buf.getvalue(), headers={"x-arquivo": "posts.xlsx"}).json()
+    assert r["criados"] == 1 and r["erros"][0]["linha"] == 3 and "biblioteca" in r["erros"][0]["erro"]
+    # CSV com ponto e vírgula também
+    csv = "data;hora;arquivo;legenda\n31/12/2030;21:00;massa.jpg;Massa de 72 horas\n".encode()
+    r = c.post(f"/api/posts/planilha?conta={k}", content=csv, headers={"x-arquivo": "posts.csv"}).json()
+    assert r["criados"] == 1
+    assert len(c.get("/api/posts").json()["posts"]) == 4

@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import hmac
+import io
 import json
 import logging
 import os
@@ -261,7 +262,167 @@ def criar_app(cfg: Config | None = None, pn: PN | None = None, llm=None) -> Fast
         if total == 0:
             destino.unlink(missing_ok=True)
             raise HTTPException(422, "arquivo vazio")
-        return {"nome": destino.name, "tipo": EXT[ext], "url": f"/api/midias/{destino.name}"}
+        db.exec("INSERT OR REPLACE INTO midias(nome,usuario,tipo,original,tamanho,criado) VALUES(?,?,?,?,?,?)",
+                (destino.name, u["id"], EXT[ext], nome[:200], total, agora()))
+        return {"nome": destino.name, "tipo": EXT[ext], "url": f"/api/midias/{destino.name}", "original": nome}
+
+    # ------------------------------------------------ biblioteca, lote e planilha (spec 44)
+    @app.get("/api/biblioteca")
+    def biblioteca(request: Request):
+        u = usuario(request)
+        itens = db.todos("SELECT nome, tipo, original, tamanho, criado FROM midias WHERE usuario=? ORDER BY criado DESC LIMIT 500", (u["id"],))
+        usados = {a for p in db.todos("SELECT arquivos FROM posts WHERE usuario=? AND estado!='cancelado'", (u["id"],)) for a in json.loads(p["arquivos"])}
+        return {"itens": [{**i, "url": f"/api/midias/{i['nome']}", "usado": i["nome"] in usados} for i in itens]}
+
+    @app.delete("/api/biblioteca/{nome}")
+    def biblioteca_apagar(nome: str, request: Request):
+        u = usuario(request)
+        if not db.um("SELECT 1 FROM midias WHERE nome=? AND usuario=?", (nome, u["id"])):
+            raise HTTPException(404, "não encontrado")
+        ativos = db.todos("SELECT arquivos FROM posts WHERE usuario=? AND estado IN ('agendado','rascunho','publicando')", (u["id"],))
+        if any(nome in json.loads(p["arquivos"]) for p in ativos):
+            raise HTTPException(409, "esse arquivo está num post agendado; cancele o post antes")
+        db.exec("DELETE FROM midias WHERE nome=?", (nome,))
+        (pasta_usuario(u["id"]) / nome).unlink(missing_ok=True)
+        return {"ok": True}
+
+    def conta_pronta(u: dict, m: str, cid) -> dict:
+        if not resumo(u, m)["assinante"]:
+            raise HTTPException(402, "escolha um plano para agendar")
+        k = minha_conta(u, int(cid or 0))
+        if k["estado"] != "conectada" or k["marca"] != m:
+            raise HTTPException(409, "conecte a conta antes de agendar")
+        return k
+
+    def sobra_do_mes(u: dict, m: str) -> int:
+        r = resumo(u, m)
+        return max(0, r["limite_posts"] - r["posts_mes"])
+
+    def criar_post(u: dict, m: str, k: dict, tipo: str, arquivos: list[str], legenda: str, quando: float, origem: str) -> int:
+        validar_post(m, tipo, arquivos, legenda, u["id"])
+        return db.exec("INSERT INTO posts(usuario,marca,conta,tipo,legenda,arquivos,quando,criado,origem) VALUES(?,?,?,?,?,?,?,?,?)",
+                       (u["id"], m, k["id"], tipo, legenda, json.dumps(arquivos), quando, agora(), origem)).lastrowid
+
+    @app.post("/api/posts/lote")
+    async def agendar_lote(request: Request):
+        """Vários arquivos da biblioteca viram uma série: um a cada N horas (padrão 24) a partir do início escolhido."""
+        u = usuario(request)
+        m = marca_de(request)
+        b = await request.json()
+        k = conta_pronta(u, m, b.get("conta"))
+        arquivos = [str(a) for a in b.get("arquivos") or []][:60]
+        if not arquivos:
+            raise HTTPException(422, "escolha os arquivos da biblioteca")
+        sobra = sobra_do_mes(u, m)
+        if len(arquivos) > sobra:
+            raise HTTPException(402, f"cabem só {sobra} posts neste mês no seu plano")
+        inicio = quando_de(b.get("inicio"))
+        passo = max(1.0, min(float(b.get("intervalo_horas") or 24), 24 * 7)) * 3600
+        base, tema = str(b.get("legenda") or ""), str(b.get("tema") or "").strip()[:400]
+        criados, erros = [], []
+        for i, a in enumerate(arquivos):
+            leg = base
+            if not leg and tema:
+                try:
+                    leg = chamar_llm([{"role": "user", "content": f"Legenda para o {MARCAS[m]['rede']} (post {i + 1} de {len(arquivos)} de uma série). "
+                                                                   f"Tema: {tema}. Gancho na primeira linha, chamada para ação e de 3 a 6 hashtags. "
+                                                                   "Responda só com a legenda."}]).strip().strip('"')[:MARCAS[m]["limite_legenda"]]
+                except Exception:  # noqa: BLE001
+                    leg = ""
+            try:
+                criados.append(criar_post(u, m, k, EXT.get(os.path.splitext(a)[1].lower(), "foto"), [a], leg, inicio + i * passo, "lote"))
+            except HTTPException as e:
+                erros.append({"arquivo": a, "erro": e.detail})
+        return {"criados": len(criados), "erros": erros, "posts": [vista_post(db.um("SELECT * FROM posts WHERE id=?", (p,))) for p in criados]}
+
+    COLUNAS = ["data", "hora", "tipo", "arquivo", "legenda"]
+
+    @app.get("/api/posts/planilha-modelo")
+    def planilha_modelo(request: Request):
+        u = usuario(request)
+        from openpyxl import Workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "posts"
+        ws.append(COLUNAS)
+        ws.append(["20/12/2026", "19:00", "foto", "pizza-margherita.jpg", "Sexta é dia de pizza! Peça pelo link da bio. #pizza"])
+        ws.append(["21/12/2026", "12:30", "video", "bastidores.mp4", "Como nasce a nossa massa"])
+        ws.append(["22/12/2026", "18:00", "carrossel", "cardapio1.jpg;cardapio2.jpg", "Cardápio novo: arrasta para o lado"])
+        for col, largura in zip("ABCDE", (12, 8, 11, 34, 70)):
+            ws.column_dimensions[col].width = largura
+        caminho = pasta_usuario(u["id"]) / "modelo-posta-ai.xlsx"
+        wb.save(caminho)
+        return FileResponse(caminho, filename="modelo-posta-ai.xlsx")
+
+    def linhas_planilha(conteudo: bytes, nome: str) -> list[dict]:
+        if nome.lower().endswith((".xlsx", ".xlsm")):
+            from openpyxl import load_workbook
+            ws = load_workbook(io.BytesIO(conteudo), read_only=True, data_only=True).active
+            linhas = [["" if c is None else c for c in r] for r in ws.iter_rows(values_only=True)]
+        else:
+            import csv
+            txt = conteudo.decode("utf-8-sig", errors="replace")
+            linhas = list(csv.reader(io.StringIO(txt), delimiter=";" if txt.count(";") > txt.count(",") else ","))
+        if not linhas:
+            return []
+        cab = [str(c).strip().lower() for c in linhas[0]]
+        if "data" not in cab or not ({"arquivo", "legenda"} & set(cab)):
+            raise HTTPException(422, "a planilha precisa das colunas: " + ", ".join(COLUNAS))
+        return [dict(zip(cab, r)) for r in linhas[1:] if any(str(x).strip() for x in r)]
+
+    def quando_linha(data, hora) -> float:
+        if isinstance(data, dt.datetime):
+            d = data
+        else:
+            d = None
+            for f in ("%d/%m/%Y", "%Y-%m-%d", "%d/%m/%y"):
+                try:
+                    d = dt.datetime.strptime(str(data).strip()[:10], f)
+                    break
+                except ValueError:
+                    continue
+            if d is None:
+                raise HTTPException(422, f"data inválida: {data}")
+        if isinstance(hora, dt.time):
+            d = d.replace(hour=hora.hour, minute=hora.minute)
+        elif str(hora or "").strip():
+            hh, _, mm = str(hora).strip().partition(":")
+            try:
+                d = d.replace(hour=int(hh), minute=int(mm or 0))
+            except ValueError:
+                raise HTTPException(422, f"hora inválida: {hora}")
+        return quando_de(d.replace(tzinfo=TZ_BR).isoformat())
+
+    @app.post("/api/posts/planilha")
+    async def importar_planilha(request: Request):
+        """Cada linha vira um post. O arquivo é casado pelo NOME ORIGINAL na biblioteca (suba as mídias antes)."""
+        u = usuario(request)
+        m = marca_de(request)
+        k = conta_pronta(u, m, request.query_params.get("conta"))
+        conteudo = await request.body()
+        if len(conteudo) > 5 * 1024 * 1024:
+            raise HTTPException(413, "planilha maior que 5 MB")
+        linhas = linhas_planilha(conteudo, request.headers.get("x-arquivo") or "planilha.csv")
+        sobra = sobra_do_mes(u, m)
+        if len(linhas) > sobra:
+            raise HTTPException(402, f"a planilha tem {len(linhas)} posts e cabem {sobra} neste mês no seu plano")
+        por_nome = {i["original"].lower(): i["nome"] for i in db.todos("SELECT nome, original FROM midias WHERE usuario=? ORDER BY criado", (u["id"],))}
+        criados, erros = 0, []
+        for n, l in enumerate(linhas, start=2):
+            try:
+                arqs = []
+                for nome in [x.strip() for x in str(l.get("arquivo") or "").split(";") if x.strip()]:
+                    if nome.lower() not in por_nome:
+                        raise HTTPException(422, f"arquivo '{nome}' não está na biblioteca")
+                    arqs.append(por_nome[nome.lower()])
+                tipo = str(l.get("tipo") or "").strip().lower()
+                if not tipo:
+                    tipo = "texto" if not arqs else "carrossel" if len(arqs) > 1 else EXT.get(os.path.splitext(arqs[0])[1], "foto")
+                criar_post(u, m, k, tipo, arqs, str(l.get("legenda") or "").strip(), quando_linha(l.get("data"), l.get("hora", "")), "planilha")
+                criados += 1
+            except HTTPException as e:
+                erros.append({"linha": n, "erro": e.detail})
+        return {"criados": criados, "erros": erros}
 
     @app.get("/api/midias/{nome}")
     def ver_midia(nome: str, request: Request):

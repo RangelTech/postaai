@@ -13,6 +13,7 @@
   <a class="logo" href="/painel"><i>AI</i>{{NOME}}</a>
   <nav class="abas" role="tablist">
     <button role="tab" data-aba="agenda" aria-selected="true">Agenda</button>
+    <button role="tab" data-aba="biblioteca">Biblioteca</button>
     <button role="tab" data-aba="contas">Conta conectada</button>
     <button role="tab" data-aba="plano">Plano</button>
   </nav>
@@ -23,6 +24,18 @@
   <section data-painel="agenda">
     <div class="cab-cartao"><h2 style="font-size:24px">Seus posts</h2><button class="btn btn-pri" id="novo">Novo post</button></div>
     <div id="lista-posts"><p class="vazio">Carregando…</p></div>
+  </section>
+  <section data-painel="biblioteca" hidden>
+    <div class="cab-cartao"><h2 style="font-size:24px">Biblioteca</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label class="btn btn-pri">Enviar fotos e vídeos<input id="bib-arquivos" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" multiple hidden></label>
+        <label class="btn btn-sec">Importar planilha<input id="bib-planilha" type="file" accept=".xlsx,.csv" hidden></label>
+        <a class="btn btn-ghost" href="/api/posts/planilha-modelo">Baixar modelo</a>
+      </div></div>
+    <p class="dim" style="margin:-4px 0 12px">Na planilha, a coluna <b>arquivo</b> usa o nome do arquivo que você enviou aqui. Colunas: data, hora, tipo, arquivo, legenda.</p>
+    <div class="bib-barra"><span id="bib-qtd"></span><button class="btn btn-pri sm" id="bib-lote" disabled>Agendar em lote</button></div>
+    <div class="msg" id="bib-msg" role="status"></div>
+    <div id="bib-grade" class="bib-grade"><p class="vazio">Carregando…</p></div>
   </section>
   <section data-painel="contas" hidden>
     <div class="cartao">
@@ -36,10 +49,12 @@
   </section>
 </main>
 <div class="modal" id="m-post" hidden role="dialog" aria-modal="true" aria-labelledby="mp-tit"><div class="caixa larga"><button class="x" data-fechar aria-label="Fechar">×</button><div id="mp-corpo"></div></div></div>
+<div class="modal" id="m-lote" hidden role="dialog" aria-modal="true"><div class="caixa"><button class="x" data-fechar aria-label="Fechar">×</button><div id="ml-corpo"></div></div></div>
 <div class="modal" id="m-conta" hidden role="dialog" aria-modal="true" aria-labelledby="mc-tit"><div class="caixa"><button class="x" data-fechar aria-label="Fechar">×</button><div id="mc-corpo"></div></div></div>
 <script>window.MARCA = {{MARCA_JSON}}</script>
 <script src="/s/login.js"></script>
 <script src="/s/painel.js"></script>
+<script src="/s/biblioteca.js"></script>
 <script src="/s/olho.js"></script>
 </body>
 </html>

@@ -34,6 +34,11 @@ CREATE TABLE IF NOT EXISTS posts (
   criado REAL NOT NULL, publicado REAL
 );
 CREATE INDEX IF NOT EXISTS posts_fila ON posts(estado, proxima, quando);
+
+-- biblioteca: todo arquivo enviado fica guardado para reusar, agendar em lote e casar com a planilha (pelo nome original)
+CREATE TABLE IF NOT EXISTS midias (nome TEXT PRIMARY KEY, usuario INTEGER NOT NULL, tipo TEXT NOT NULL, original TEXT NOT NULL,
+  tamanho INTEGER NOT NULL, criado REAL NOT NULL);
+CREATE INDEX IF NOT EXISTS midias_usuario ON midias(usuario, criado);
 CREATE INDEX IF NOT EXISTS posts_usuario ON posts(usuario, marca, quando);
 """
 
