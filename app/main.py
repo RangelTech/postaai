@@ -24,6 +24,7 @@ from app.config import Config, carregar
 from app.db import Banco, agora
 from app.marcas import MARCAS, PLANOS, por_host, publica
 from app.pn import PN, PNErro
+from app import admin  # painel /admin e prompts editáveis
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("postaai")
@@ -42,11 +43,15 @@ def criar_app(cfg: Config | None = None, pn: PN | None = None, llm=None) -> Fast
     pasta_midia = Path(cfg.dados) / "midia"
     pasta_midia.mkdir(exist_ok=True)
     db = Banco(os.path.join(cfg.dados, "postaai.db"))
+    admin.preparar(db)
     pn = pn or PN(cfg.pn_url, cfg.pn_token)
     app = FastAPI(title="Posta AI", docs_url=None, redoc_url=None, openapi_url=None)
     app.state.cfg, app.state.db, app.state.pn = cfg, db, pn
 
     def chamar_llm(msgs: list[dict]) -> str:
+        estilo = admin.texto("posta-legendas")
+        if estilo and not any(m.get("role") == "system" for m in msgs):
+            msgs = [{"role": "system", "content": estilo}] + msgs
         if llm:
             return llm(msgs)
         r = httpx.post(cfg.llm_base + "/chat/completions", headers={"Authorization": f"Bearer {cfg.llm_key}"}, timeout=120,
@@ -696,6 +701,13 @@ def criar_app(cfg: Config | None = None, pn: PN | None = None, llm=None) -> Fast
     @app.get("/termos", response_class=HTMLResponse)
     def termos(request: Request):
         return pagina("termos.html", request)
+
+    app.include_router(admin.rotas(db, cfg.segredo_sessao, """SELECT email, criado, plano, ativo_ate, (ativo_ate > strftime('%s','now')) ativo
+        FROM usuarios ORDER BY criado DESC""", seguro=not cfg.dev))
+
+    @app.get("/admin", response_class=HTMLResponse)
+    def pagina_admin():
+        return FileResponse(ESTATICO / "admin.html")
 
     app.mount("/s", StaticFiles(directory=ESTATICO), name="estatico")
     return app
