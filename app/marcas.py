@@ -20,7 +20,7 @@ PLANOS = {
     "start": {"nome": "Start", "preco": 24.90, "contas": 1, "posts_mes": 30,
               "itens": ["1 conta conectada", "30 posts agendados por mês", "Legenda escrita pela IA", "Reenvio automático se falhar"]},
     "pro": {"nome": "Pro", "preco": 49.90, "contas": 2, "posts_mes": 90,
-            "itens": ["2 contas conectadas", "90 posts por mês", "Calendário da semana", "Recebe os posts do Perfilaí, Cortaí e Anima AI"]},
+            "itens": ["2 contas conectadas", "90 posts por mês", "Calendário da semana", "Recebe os posts do Perfil AI, Cortaí e Anima AI"]},
     "turbo": {"nome": "Top", "preco": 97.00, "contas": 5, "posts_mes": 300,
               "itens": ["5 contas conectadas", "300 posts por mês", "Tudo do Pro", "Para quem gerencia redes de clientes"]},
 }
