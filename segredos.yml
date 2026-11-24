@@ -1,0 +1,17 @@
+# Só NOMES das variáveis. Os valores ficam no Infisical (nunca no git). Spec 57, seção 0A.2.
+infisical:
+  projeto: rt-produtos
+  pasta: postaai
+  ambiente: prod
+segredos:
+  - POSTAAI_ADMIN_KEY
+  - POSTAAI_CAKTO_SEGREDO
+  - POSTAAI_DEMO_SENHA
+  - POSTAAI_LLM_KEY
+  - POSTAAI_PN_TOKEN
+  - POSTAAI_SEGREDO_SESSAO
+  - POSTAAI_SMTP_FROM
+  - SMTP_HOST
+  - SMTP_PASSWORD
+  - SMTP_PORT
+  - SMTP_USER
