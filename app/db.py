@@ -1,7 +1,9 @@
 """Banco do Posta AI: SQLite num volume (/data). Hora em epoch (s)."""
 from __future__ import annotations
 
+import os
 import sqlite3
+import uuid
 import threading
 import time
 from contextlib import contextmanager
@@ -43,7 +45,7 @@ CREATE INDEX IF NOT EXISTS posts_usuario ON posts(usuario, marca, quando);
 """
 
 
-class Banco:
+class BancoSQLite:
     def __init__(self, caminho: str):
         self._trava = threading.Lock()
         self.con = sqlite3.connect(caminho, check_same_thread=False, isolation_level=None)
@@ -78,3 +80,16 @@ class Banco:
 
 def agora() -> float:
     return time.time()
+
+
+def Banco(caminho: str):
+    """Postgres central (banco `produtos`, schema do produto) quando PRODUTOS_DATABASE_URL existe; senão o SQLite de antes
+    (plano de volta). Spec 57, seção 8. PRODUTOS_SCHEMA_TESTE=1 dá um schema novo por instância (testes isolados)."""
+    dsn = os.environ.get("PRODUTOS_DATABASE_URL")
+    if not dsn:
+        return BancoSQLite(caminho)
+    from produtos_core.banco_pg import Banco as BancoPG
+    schema = os.environ.get("PRODUTOS_SCHEMA", "postaai")
+    if os.environ.get("PRODUTOS_SCHEMA_TESTE"):
+        schema = "teste_" + uuid.uuid4().hex[:10]
+    return BancoPG(dsn, schema, ESQUEMA)
