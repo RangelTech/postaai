@@ -1,4 +1,5 @@
 """Posta AI com perfil-navegador falso: conectar (2FA), subir mídia, agendar, publicar, reenviar, sessão que cai, Cakto."""
+from produtos_core.teste import entrar
 import json
 import os
 import sys
@@ -48,8 +49,7 @@ def amb(tmp_path):
                  planos_por_produto={"p-insta-start": "insta:start"}, admin_key="adm")
     app = criar_app(cfg, pn=PN("http://pn", "tk", transport=httpx.MockTransport(f.handler)), llm=lambda m: "Legenda pronta #promo")
     c = TestClient(app, base_url="http://posta-insta.rangeltech.net")
-    cod = c.post("/api/entrar/codigo", json={"email": "loja@x.com"}).json()["codigo_dev"]
-    c.post("/api/entrar", json={"email": "loja@x.com", "codigo": cod})
+    entrar(c, "loja@x.com")
     return c, f, app
 
 
@@ -137,8 +137,7 @@ def test_midia_validacao_e_isolamento(amb):
     m = subir(c)
     assert c.get(m["url"]).status_code == 200
     c2 = TestClient(app, base_url="http://posta-insta.rangeltech.net")
-    cod = c2.post("/api/entrar/codigo", json={"email": "outro@x.com"}).json()["codigo_dev"]
-    c2.post("/api/entrar", json={"email": "outro@x.com", "codigo": cod})
+    entrar(c2, "outro@x.com")
     assert c2.get(m["url"]).status_code == 404
 
 
