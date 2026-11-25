@@ -1,0 +1,44 @@
+{
+  "_doc": "Contrato de planos do produto (spec 57 §3, item 4). Quem muda preço muda AQUI, no código e na oferta da Cakto; o teste tests/test_planos_contrato.py falha se o código e este arquivo divergirem. Mapa produto da Cakto -> plano e links de checkout ficam no Infisical (nunca no git).",
+  "produto": "postaai",
+  "moeda": "BRL",
+  "periodo": "mensal",
+  "planos": [
+    {
+      "codigo": "start",
+      "nome": "Start",
+      "preco": 24.9
+    },
+    {
+      "codigo": "pro",
+      "nome": "Pro",
+      "preco": 49.9
+    },
+    {
+      "codigo": "turbo",
+      "nome": "Top",
+      "preco": 97.0
+    }
+  ],
+  "cakto": {
+    "conta": "lucas",
+    "infisical": "rt-produtos/postaai",
+    "mapa": "POSTAAI_PLANOS_CAKTO",
+    "checkouts": "POSTAAI_CHECKOUTS",
+    "webhook": "POST /api/cakto (segredo em POSTAAI_CAKTO_SEGREDO)",
+    "codigos_vendidos": [
+      "face:pro",
+      "face:start",
+      "face:turbo",
+      "insta:pro",
+      "insta:start",
+      "insta:turbo",
+      "linkdn:pro",
+      "linkdn:start",
+      "linkdn:turbo",
+      "tiktok:pro",
+      "tiktok:start",
+      "tiktok:turbo"
+    ]
+  }
+}
